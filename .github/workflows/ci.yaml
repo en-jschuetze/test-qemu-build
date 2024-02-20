@@ -37,17 +37,20 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      -
+        name: Set up containerd
+        uses: crazy-max/ghaction-setup-containerd@v3
+      -
+        name: Build Docker image
+        uses: docker/build-push-action@v4
         with:
           context: .
+          file: ./Dockerfile
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
+          outputs: type=oci,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
         run: |
           docker load --input /tmp/${{ env.PLATFORM_PAIR }}.tar
@@ -107,15 +110,18 @@ jobs:
           with:
             name: linux-arm64.tar
             path: /tmp
-        - name: Load image
+        - name: Import image in containerd
           run: |
-            docker load --input /tmp/linux-arm64.tar
-            docker load --input /tmp/linux-amd64.tar
-            docker image ls -a          
-        - name: Test am64
+            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-arm64.tar  
+            sudo ctr i import --base-name tghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
+            sudo ctr images list
+        - name: Login to ghcr.io
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+        - name: Push Combined Image
           run: |
-            docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
-        - name: Dry create  manifest
-          run: |
-            docker buildx build --load --tag temporary-build-image --platform linux/amd64,linux/arm64 .
+            sudo ctr --debug i push --user "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" --all-platforms ghcr.io/en-jschuetze/test-qemu-build
 
