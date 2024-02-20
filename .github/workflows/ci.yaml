@@ -7,7 +7,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}:8.2.16
+  IMAGE_NAME: ${{ github.repository }}
+  PHP_VERSION: 8.2.16
 
 jobs:
   build:
@@ -132,6 +133,8 @@ jobs:
           id: meta
           uses: docker/metadata-action@v5.5.1
           with:
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Docker image
           uses: docker/build-push-action@v5.1.0
@@ -153,7 +156,9 @@ jobs:
           id: metaUnit
           uses: docker/metadata-action@v5.5.1
           with:
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-unit
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}-unit
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-unit
           uses: docker/build-push-action@v5.1.0
           with:
@@ -174,7 +179,9 @@ jobs:
           id: metaFpm
           uses: docker/metadata-action@v5.5.1
           with:
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}-fpm
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-fpm
           uses: docker/build-push-action@v5.1.0
           with:
@@ -195,7 +202,9 @@ jobs:
           id: metaApache2
           uses: docker/metadata-action@v5.5.1
           with:
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-apache2
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}-apache2
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-apache2
           uses: docker/build-push-action@v5.1.0
           with:
