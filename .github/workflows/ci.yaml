@@ -97,6 +97,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Dry run creation manifest list
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create --dry-run $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+      -
         if: contains(github.ref, 'refs/heads/release/')
         name: Create manifest list and push
         working-directory: /tmp/digests
