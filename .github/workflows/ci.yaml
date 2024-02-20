@@ -133,7 +133,6 @@ jobs:
           uses: docker/metadata-action@v5.5.1
           with:
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-  
         - name: Build and push Docker image
           uses: docker/build-push-action@v5.1.0
           with:
@@ -143,3 +142,40 @@ jobs:
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.meta.outputs.tags }}
             labels: ${{ steps.meta.outputs.labels }}
+            
+        - name: Create Dockerfile-unit
+          run: |
+            cp Dockerfile Dockerfile-unit
+            cat files/unit/unit.Dockerfile.snippet.txt >> Dockerfile-unit
+        - name: Extract Dockerfile-unit metadata
+          id: metaUnit
+          uses: docker/metadata-action@v5.5.1
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-unit
+        - name: Build and push Dockerfile-unit
+          uses: docker/build-push-action@v5.1.0
+          with:
+            context: Dockerfile-unit
+            platforms: linux/amd64,linux/arm64
+            provenance: false
+            push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.metaUnit.outputs.tags }}
+            labels: ${{ steps.metaUnit.outputs.labels }}
+        - name: Create Dockerfile-fpm
+          run: |
+            cp Dockerfile Dockerfile-fpm
+            cat files/fpm/fpm.Dockerfile.snippet.txt >> Dockerfile-fpm
+        - name: Extract Dockerfile-fpm metadata
+          id: metaFpm
+          uses: docker/metadata-action@v5.5.1
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-fpm
+        - name: Build and push Dockerfile-fpm
+          uses: docker/build-push-action@v5.1.0
+          with:
+            context: Dockerfile-fpm
+            platforms: linux/amd64,linux/arm64
+            provenance: false
+            push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.metaFpm.outputs.tags }}
+            labels: ${{ steps.metaFpm.outputs.labels }}
