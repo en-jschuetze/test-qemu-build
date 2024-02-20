@@ -60,7 +60,7 @@ jobs:
         run: |
           docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} sh -c 'uname -a && php -v'
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLATFORM_PAIR }}.tar
           path: /tmp/${{ env.PLATFORM_PAIR }}.tar          
@@ -82,7 +82,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Download ${{ matrix.platform }} artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.PLATFORM_PAIR }}.tar
           path: /tmp
@@ -104,7 +104,7 @@ jobs:
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v3
         - name: Download amd64 artifact
-          uses: actions/download-artifact@v3
+          uses: actions/download-artifact@v4
           with:
             name: linux-amd64.tar
             path: /tmp
