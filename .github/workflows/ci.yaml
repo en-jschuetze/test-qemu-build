@@ -94,7 +94,9 @@ jobs:
       needs: test
       steps:
         - name: Set up QEMU
-          uses: docker/setup-qemu-action@v3      
+          uses: docker/setup-qemu-action@v3    
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
         - name: Download amd64 artifact
           uses: actions/download-artifact@v3
           with:
@@ -115,5 +117,5 @@ jobs:
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
         - name: Dry create  manifest
           run: |
-            docker manifest create temporary-build-image --amend temporary-build-image-linux-arm64 --amend temporary-build-image-linux-amd64
+            docker buildx build --load --tag temporary-build-image --platform linux/amd64,linux/arm64 .
 
