@@ -110,6 +110,11 @@ jobs:
             docker load --input /tmp/linux-arm64.tar
             docker load --input /tmp/linux-amd64.tar
             docker image ls -a          
-        - name: Test
+        - name: Test am64
           run: |
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
+        - name: Dry run merge
+          run: |
+            docker buildx imagetools create --dry-run temporary-build-image temporary-build-image-linux-arm64 temporary-build-image-linux-amd64
+
+
