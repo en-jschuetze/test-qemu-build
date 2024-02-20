@@ -83,7 +83,7 @@ jobs:
         uses: crazy-max/ghaction-setup-containerd@v3
       - name: Load image
         run: |
-          sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
+          sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --platform ${{ matrix.platform }} /tmp/linux-amd64.tar
           sudo ctr images list
       - name: Test
         run: |
