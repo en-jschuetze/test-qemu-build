@@ -60,6 +60,10 @@ jobs:
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
+      - 
+        name: Test
+        run: |
+          docker run --rm ${{ env.REGISTRY_IMAGE }} php -v
       -
         name: Upload digest
         uses: actions/upload-artifact@v4
