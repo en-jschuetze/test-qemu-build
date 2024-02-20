@@ -51,13 +51,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
           outputs: type=oci,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
-      - name: Load image
-        run: |
-          docker load --input /tmp/${{ env.PLATFORM_PAIR }}.tar
-          docker image ls -a
-      - name: Test
-        run: |
-          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} sh -c 'uname -a && php -v'
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
