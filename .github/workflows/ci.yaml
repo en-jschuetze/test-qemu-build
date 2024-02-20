@@ -179,3 +179,21 @@ jobs:
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.metaFpm.outputs.tags }}
             labels: ${{ steps.metaFpm.outputs.labels }}
+        - name: Create Dockerfile-apache2
+          run: |
+            cp Dockerfile Dockerfile-apache2
+            cat files/apache2/apache2.Dockerfile.snippet.txt >> Dockerfile-apache2
+        - name: Extract Dockerfile-apache2 metadata
+          id: metaApache2
+          uses: docker/metadata-action@v5.5.1
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-apache2
+        - name: Build and push Dockerfile-apache2
+          uses: docker/build-push-action@v5.1.0
+          with:
+            context: Dockerfile-apache2
+            platforms: linux/amd64,linux/arm64
+            provenance: false
+            push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.metaApache2.outputs.tags }}
+            labels: ${{ steps.metaApache2.outputs.labels }}
