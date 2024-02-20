@@ -108,8 +108,8 @@ jobs:
             path: /tmp
         - name: Import image in containerd
           run: |
-            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-arm64.tar  
-            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
+            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --platform linux/arm64 /tmp/linux-arm64.tar  
+            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --platform linux/amd64 /tmp/linux-amd64.tar
             sudo ctr images list
         - name: Login to ghcr.io
           uses: docker/login-action@v3
