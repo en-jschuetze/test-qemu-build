@@ -54,7 +54,7 @@ jobs:
           docker image ls -a
       - name: Test
         run: |
-          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} php -v
+          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} sh -c 'uname -a && php -v'
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -86,7 +86,7 @@ jobs:
           docker image ls -a
       - name: Test
         run: |
-          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} php -v
+          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} sh -c 'uname -a && php -v'
   use:
       runs-on: ubuntu-latest
       needs: test
@@ -108,4 +108,4 @@ jobs:
             docker image ls -a          
         - name: Test
           run: |
-            docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 php -v
+            docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
