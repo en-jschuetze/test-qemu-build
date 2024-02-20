@@ -78,16 +78,19 @@ jobs:
         with:
           name: ${{ env.PLATFORM_PAIR }}.tar
           path: /tmp
+      -
+        name: Set up containerd
+        uses: crazy-max/ghaction-setup-containerd@v3
       - name: Load image
         run: |
-          docker load --input /tmp/${{ env.PLATFORM_PAIR }}.tar
-          docker image ls -a
+          sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
+          sudo ctr images list
       - name: Test
         run: |
-          docker run --platform ${{ matrix.platform }} --rm temporary-build-image-${{ env.PLATFORM_PAIR }} sh -c 'uname -a && php -v'
+          nerdctl run --platform ${{ matrix.platform }} --rm ghcr.io/en-jschuetze/test-qemu-build sh -c 'uname -a && php -v'
   use:
       runs-on: ubuntu-latest
-      needs: test
+      needs: build
       steps:
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v3    
@@ -106,7 +109,7 @@ jobs:
         - name: Import image in containerd
           run: |
             sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-arm64.tar  
-            sudo ctr i import --base-name tghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
+            sudo ctr i import --base-name ghcr.io/en-jschuetze/test-qemu-build --digests --all-platforms /tmp/linux-amd64.tar
             sudo ctr images list
         - name: Login to ghcr.io
           uses: docker/login-action@v3
