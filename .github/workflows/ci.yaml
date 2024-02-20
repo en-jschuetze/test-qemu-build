@@ -113,8 +113,7 @@ jobs:
         - name: Test am64
           run: |
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
-        - name: Dry run merge
+        - name: Dry create  manifest
           run: |
-            docker buildx imagetools create --dry-run temporary-build-image temporary-build-image-linux-arm64 temporary-build-image-linux-amd64
-
+            docker manifest create temporary-build-image --amend temporary-build-image-linux-arm64 --amend temporary-build-image-linux-amd64
 
