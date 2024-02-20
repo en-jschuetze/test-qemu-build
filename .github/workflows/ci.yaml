@@ -78,7 +78,7 @@ jobs:
       - name: Download amd64 artifact
         uses: actions/download-artifact@v3
         with:
-          name: $PLATFORM_PAIR
+          name: ${{ env.PLATFORM_PAIR }}
           path: /tmp
       - name: Load image
         run: |
