@@ -217,26 +217,3 @@ jobs:
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.metaApache2.outputs.tags }}
             labels: ${{ steps.metaApache2.outputs.labels }}
-        - name: Create Dockerfile-frankenphp
-          run: |
-            cp Dockerfile Dockerfile-frankenphp
-            cat files/frankenphp/frankenphp.Dockerfile.snippet.txt >> Dockerfile-frankenphp
-        - name: Extract Dockerfile-frankenphp metadata
-          id: metaFrankenphp
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-frankenphp
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-frankenphp
-          uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-            file: Dockerfile-frankenphp
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: type=gha
-            cache-to: type=gha,mode=max
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaFrankenphp.outputs.tags }}
-            labels: ${{ steps.metaFrankenphp.outputs.labels }}
