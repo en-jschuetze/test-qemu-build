@@ -8,7 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PHP_VERSION: 8.2.16-zts
+  PHP_VERSION: 8.2.16
 
 jobs:
   build:
