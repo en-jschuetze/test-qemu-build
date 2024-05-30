@@ -51,7 +51,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
         run: |
@@ -143,7 +143,7 @@ jobs:
                type=raw,value=${{ env.PHP_VERSION }}
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Docker image
-          uses: docker/build-push-action@v5.1.0
+          uses: docker/build-push-action@v5.3.0
           with:
             context: .
             platforms: linux/amd64,linux/arm64
@@ -166,7 +166,7 @@ jobs:
                type=raw,value=${{ env.PHP_VERSION }}-unit
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-unit
-          uses: docker/build-push-action@v5.1.0
+          uses: docker/build-push-action@v5.3.0
           with:
             context: .
             file: Dockerfile-unit
@@ -189,7 +189,7 @@ jobs:
                type=raw,value=${{ env.PHP_VERSION }}-fpm
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-fpm
-          uses: docker/build-push-action@v5.1.0
+          uses: docker/build-push-action@v5.3.0
           with:
             context: .
             file: Dockerfile-fpm
@@ -212,7 +212,7 @@ jobs:
                type=raw,value=${{ env.PHP_VERSION }}-apache2
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         - name: Build and push Dockerfile-apache2
-          uses: docker/build-push-action@v5.1.0
+          uses: docker/build-push-action@v5.3.0
           with:
             context: .
             file: Dockerfile-apache2
