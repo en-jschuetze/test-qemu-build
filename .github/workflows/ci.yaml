@@ -50,7 +50,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
-          cache-from: type=gha
+          cache-from: type=gha,scope=unsuffixed
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
@@ -148,7 +148,7 @@ jobs:
             context: .
             platforms: linux/amd64,linux/arm64
             provenance: false
-            cache-from: type=gha
+            cache-from: type=gha,scope=unsuffixed
             cache-to: type=gha,mode=max,scope=unsuffixed
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.meta.outputs.tags }}
@@ -172,7 +172,7 @@ jobs:
             file: Dockerfile-unit
             platforms: linux/amd64,linux/arm64
             provenance: false
-            cache-from: type=gha
+            cache-from: type=gha,scope=unsuffixed
             cache-to: type=gha,mode=max,scope=unit
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.metaUnit.outputs.tags }}
@@ -195,7 +195,7 @@ jobs:
             file: Dockerfile-fpm
             platforms: linux/amd64,linux/arm64
             provenance: false
-            cache-from: type=gha
+            cache-from: type=gha,scope=unsuffixed
             cache-to: type=gha,mode=max,scope=fpm
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.metaFpm.outputs.tags }}
@@ -218,7 +218,7 @@ jobs:
             file: Dockerfile-apache2
             platforms: linux/amd64,linux/arm64
             provenance: false
-            cache-from: type=gha
+            cache-from: type=gha,scope=unsuffixed
             cache-to: type=gha,mode=max,scope=apache2
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.metaApache2.outputs.tags }}
