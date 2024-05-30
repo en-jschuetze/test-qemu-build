@@ -114,14 +114,20 @@ jobs:
           with:
             name: linux-arm64.tar
             path: /tmp
-        - name: Load image
+        - name: Load arm64 image
           run: |
             docker load --input /tmp/linux-arm64.tar
+            docker image ls -a          
+        - name: Load amd64 image
+          run: |
             docker load --input /tmp/linux-amd64.tar
             docker image ls -a          
-        - name: Test am64
+        - name: Test amd64
           run: |
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
+        - name: Test arm64
+          run: |
+            docker run --platform linux/arm64 --rm temporary-build-image-linux-arm64 sh -c 'uname -a && php -v'
         - name: Log into registry ${{ env.REGISTRY }}
           if: github.event_name != 'pull_request'
           uses: docker/login-action@v3.0.0
