@@ -3,13 +3,9 @@ FROM alpine:3.19.1
 ARG PHP_VERSION="8.2.20"
 ARG PHP_PACKAGE_BASENAME="php82"
 ARG PHP_FPM_BINARY_PATH="/usr/sbin/php-fpm82"
-ARG UNIT_VERSION="1.32.1"
-ARG APACHE2_VERSION="2.4.62"
 ENV PHP_VERSION=$PHP_VERSION
 ENV PHP_PACKAGE_BASENAME=$PHP_PACKAGE_BASENAME
 ENV PHP_FPM_BINARY_PATH=$PHP_FPM_BINARY_PATH
-ENV UNIT_VERSION=$UNIT_VERSION
-ENV APACHE2_VERSION=$APACHE2_VERSION
 
 RUN apk upgrade -U # 2024/01/10 upgrade to get latest extensions
 
@@ -114,14 +110,14 @@ RUN sed -i -e 's/;decorate_workers_output = no/decorate_workers_output = no/g' /
 RUN echo "php_admin_flag[fastcgi.logging] = off" >> /etc/${PHP_PACKAGE_BASENAME}/php-fpm.d/www.conf
 
 # install nginx unit and the php module for nginx unit
-RUN apk add --no-cache unit~=$UNIT_VERSION unit-${PHP_PACKAGE_BASENAME}~=$UNIT_VERSION
+RUN apk add --no-cache unit unit-${PHP_PACKAGE_BASENAME}~=$UNIT_VERSION
 # add default nginx unit json file (listening on port 8080)
 COPY files/unit/unit-default.json /var/lib/unit/conf.json
 # chown the folder for control socket file
 RUN chown www-data:www-data /run/unit/
 
 # install apache2 and the php module for apache2
-RUN apk add --no-cache apache2~=$APACHE2_VERSION ${PHP_PACKAGE_BASENAME}-apache2~=${PHP_VERSION}
+RUN apk add --no-cache apache2 ${PHP_PACKAGE_BASENAME}-apache2~=${PHP_VERSION}
 # add default apache2 config file
 COPY files/apache2/apache2-default.conf /etc/apache2/conf.d/00_apache2-default.conf
 # activate rewrite module
