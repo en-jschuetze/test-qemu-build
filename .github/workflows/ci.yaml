@@ -96,6 +96,14 @@ jobs:
   use:
       runs-on: ubuntu-latest
       needs: build
+      strategy:
+        fail-fast: false
+        matrix:
+          suffix:
+            - unsuffixed
+            - fpm
+            - apache2
+            - frankenphp
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -134,14 +142,15 @@ jobs:
             registry: ${{ env.REGISTRY }}
             username: ${{ github.actor }}
             password: ${{ secrets.GITHUB_TOKEN }}
-        - name: Extract Docker metadata
-          id: meta
+        - name: Extract Dockerfile metadata
+          id: metaUnsuffixed
           uses: docker/metadata-action@v5.5.1
           with:
             tags: |
                type=raw,value=${{ env.PHP_VERSION }}
             images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Docker image
+        - if: contains(matrix.suffix, 'unsuffixed')
+          name: Build and push Docker image
           uses: docker/build-push-action@v5.3.0
           with:
             context: .
@@ -153,84 +162,35 @@ jobs:
               type=gha,scope=linux-arm64          
             cache-to: type=gha,mode=max,scope=unsuffixed
             push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.metaUnsuffixed.outputs.tags }}
+            labels: ${{ steps.metaUnsuffixed.outputs.labels }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Create Dockerfile-${{ matrix.suffix }}
+          run: |
+            cp Dockerfile Dockerfile-${{ matrix.suffix }}
+            cat files/${{ matrix.suffix }}/${{ matrix.suffix }}.Dockerfile.snippet.txt >> Dockerfile-${{ matrix.suffix }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Extract Dockerfile-${{ matrix.suffix }} metadata
+          id: meta
+          uses: docker/metadata-action@v5.5.1
+          with:
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}-${{ matrix.suffix }}
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Build and push Dockerfile-${{ matrix.suffix }}
+          uses: docker/build-push-action@v5.3.0
+          with:
+            context: .
+            file: Dockerfile-${{ matrix.suffix }}
+            platforms: linux/amd64,linux/arm64
+            provenance: false
+            cache-from: |
+              type=gha,scope=unsuffixed
+              type=gha,scope=linux-amd64
+              type=gha,scope=linux-arm64
+            cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
+            push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.meta.outputs.tags }}
             labels: ${{ steps.meta.outputs.labels }}
-            
-        - name: Create Dockerfile-unit
-          run: |
-            cp Dockerfile Dockerfile-unit
-            cat files/unit/unit.Dockerfile.snippet.txt >> Dockerfile-unit
-        - name: Extract Dockerfile-unit metadata
-          id: metaUnit
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-unit
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-unit
-          uses: docker/build-push-action@v5.3.0
-          with:
-            context: .
-            file: Dockerfile-unit
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=unit
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaUnit.outputs.tags }}
-            labels: ${{ steps.metaUnit.outputs.labels }}
-        - name: Create Dockerfile-fpm
-          run: |
-            cp Dockerfile Dockerfile-fpm
-            cat files/fpm/fpm.Dockerfile.snippet.txt >> Dockerfile-fpm
-        - name: Extract Dockerfile-fpm metadata
-          id: metaFpm
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-fpm
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-fpm
-          uses: docker/build-push-action@v5.3.0
-          with:
-            context: .
-            file: Dockerfile-fpm
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=fpm
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaFpm.outputs.tags }}
-            labels: ${{ steps.metaFpm.outputs.labels }}
-        - name: Create Dockerfile-apache2
-          run: |
-            cp Dockerfile Dockerfile-apache2
-            cat files/apache2/apache2.Dockerfile.snippet.txt >> Dockerfile-apache2
-        - name: Extract Dockerfile-apache2 metadata
-          id: metaApache2
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-apache2
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-apache2
-          uses: docker/build-push-action@v5.3.0
-          with:
-            context: .
-            file: Dockerfile-apache2
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=apache2
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaApache2.outputs.tags }}
-            labels: ${{ steps.metaApache2.outputs.labels }}
+
