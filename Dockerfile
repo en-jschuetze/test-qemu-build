@@ -106,11 +106,11 @@ COPY --from=PHPZTSBUILDER /workspace/packages/community /opt/custom-packages
 # hadolint ignore=DL3003,SC2035,SC2046
 RUN apk add --no-cache abuild && \
      abuild-keygen -a -n && \
+     cp ~/.abuild/*.rsa.pub /etc/apk/keys/ && \
      rm /opt/custom-packages/*/APKINDEX.tar.gz && \
      cd /opt/custom-packages/*/ && \
      apk index -vU -o APKINDEX.tar.gz *.apk --no-warnings --rewrite-arch $(abuild -A) && \
      abuild-sign -k ~/.abuild/*.rsa /opt/custom-packages/*/APKINDEX.tar.gz && \
-     cp ~/.abuild/*.rsa.pub /etc/apk/keys/ && \
      apk del abuild
 # hadolint ignore=SC3037
 RUN echo -e "/opt/custom-packages\n$(cat /etc/apk/repositories)" > /etc/apk/repositories
