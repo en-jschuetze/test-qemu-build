@@ -110,7 +110,7 @@ RUN sed -i -e 's/;decorate_workers_output = no/decorate_workers_output = no/g' /
 RUN echo "php_admin_flag[fastcgi.logging] = off" >> /etc/${PHP_PACKAGE_BASENAME}/php-fpm.d/www.conf
 
 # install nginx unit and the php module for nginx unit
-RUN apk add --no-cache unit unit-${PHP_PACKAGE_BASENAME}~=$UNIT_VERSION
+RUN apk add --no-cache unit unit-${PHP_PACKAGE_BASENAME}
 # add default nginx unit json file (listening on port 8080)
 COPY files/unit/unit-default.json /var/lib/unit/conf.json
 # chown the folder for control socket file
