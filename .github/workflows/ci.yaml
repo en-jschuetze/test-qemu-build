@@ -103,7 +103,6 @@ jobs:
             - unsuffixed
             - fpm
             - apache2
-            - cron
             - unit
       steps:
         - name: Checkout
