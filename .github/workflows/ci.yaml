@@ -103,7 +103,8 @@ jobs:
             - unsuffixed
             - fpm
             - apache2
-            - frankenphp
+            - cron
+            - unit
       steps:
         - name: Checkout
           uses: actions/checkout@v4
