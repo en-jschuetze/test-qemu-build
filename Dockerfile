@@ -142,6 +142,18 @@ RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pear
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-tokenizer
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-session
 
+# FIXME: we need this, since phpzts82 is not the _default_php in https://git.alpinelinux.org/aports/tree/community/php82/APKBUILD
+WORKDIR /usr/bin
+RUN    ln -s phpzts82 php \
+    && ln -s peardevzts82 peardev \
+    && ln -s peclzts82 pecl \
+    && ln -s phpizezts82 phpize \
+    && ln -s php-configzts82 php-config \
+    && ln -s phpdbgzts82 phpdbg \
+    && ln -s lsphpzts82 lsphp \
+    && ln -s php-cgizts82 php-cgi \
+    && ln -s phar.pharzts82 phar.phar \
+    && ln -s pharzts82 phar
 
 FROM php-zts-base AS pecl-builder-amqp
 
@@ -301,19 +313,6 @@ COPY --from=pecl-builder-grpc /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini /etc/$P
 
 COPY --from=pecl-builder-pcov /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so
 COPY --from=pecl-builder-pcov /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini
-
-# FIXME: we need this, since phpzts82 is not the _default_php in https://git.alpinelinux.org/aports/tree/community/php82/APKBUILD
-WORKDIR /usr/bin
-RUN    ln -s phpzts82 php \
-    && ln -s peardevzts82 peardev \
-    && ln -s peclzts82 pecl \
-    && ln -s phpizezts82 phpize \
-    && ln -s php-configzts82 php-config \
-    && ln -s phpdbgzts82 phpdbg \
-    && ln -s lsphpzts82 lsphp \
-    && ln -s php-cgizts82 php-cgi \
-    && ln -s phar.pharzts82 phar.phar \
-    && ln -s pharzts82 phar
 
 # add php.ini containing environment variables
 COPY files/php.ini /etc/${PHP_PACKAGE_BASENAME}/php.ini
