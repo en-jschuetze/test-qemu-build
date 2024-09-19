@@ -143,7 +143,7 @@ RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-tokenizer
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-session
 
 
-FROM php-zts-base AS PECL-BUILDER-AMQP
+FROM php-zts-base AS pecl-builder-amqp
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-amqp
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers rabbitmq-c-dev ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -153,7 +153,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && apk del --no-network .build-deps \
     && apk add --no-cache rabbitmq-c
 
-FROM php-zts-base AS PECL-BUILDER-APCU
+FROM php-zts-base AS pecl-builder-apcu
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-apcu
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -162,7 +162,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=apcu" > /etc/$PHP_PACKAGE_BASENAME/conf.d/apcu.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-IGBINARY
+FROM php-zts-base AS pecl-builder-igbinary
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-igbinary
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -171,7 +171,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=igbinary" > /etc/$PHP_PACKAGE_BASENAME/conf.d/10_igbinary.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-IMAGICK
+FROM php-zts-base AS pecl-builder-imagick
 
 # FIXME: # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-imagick
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers imagemagick imagemagick-dev imagemagick-libs ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -181,7 +181,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && apk del --no-network .build-deps \
     && apk add --no-cache imagemagick imagemagick-libs libgomp
 
-FROM php-zts-base AS PECL-BUILDER-MSGPACK
+FROM php-zts-base AS pecl-builder-msgpack
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-msgpack
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -190,7 +190,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=msgpack" > /etc/$PHP_PACKAGE_BASENAME/conf.d/10_msgpack.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-MEMCACHED
+FROM php-zts-base AS pecl-builder-memcached
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-memcached
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers zlib-dev libmemcached-dev cyrus-sasl-dev libevent-dev ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -200,7 +200,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && apk del --no-network .build-deps \
     && apk add --no-cache libmemcached-libs libevent
 
-FROM php-zts-base AS PECL-BUILDER-PROTOBUF
+FROM php-zts-base AS pecl-builder-protobuf
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-protobuf
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -209,7 +209,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=protobuf" > /etc/$PHP_PACKAGE_BASENAME/conf.d/protobuf.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-REDIS
+FROM php-zts-base AS pecl-builder-redis
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-redis
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers lz4-dev zstd-dev ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -218,7 +218,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=redis" > /etc/$PHP_PACKAGE_BASENAME/conf.d/20_redis.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-XDEBUG
+FROM php-zts-base AS pecl-builder-xdebug
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-xdebug
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -229,7 +229,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && sed -i -e 's/;zend/zend/g' /etc/${PHP_PACKAGE_BASENAME}/conf.d/50_xdebug.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-GRPC
+FROM php-zts-base AS pecl-builder-grpc
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-grpc~=$GRPC_EXTENSION_VERSION --repository $GRPC_EXTENSION_REPOSITORY
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -238,7 +238,7 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
     && echo "extension=grpc" > /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini \
     && apk del --no-network .build-deps
 
-FROM php-zts-base AS PECL-BUILDER-PCOV
+FROM php-zts-base AS pecl-builder-pcov
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-pcov~=$PCOV_EXTENSION_VERSION --repository $PCOV_EXTENSION_REPOSITORY
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
@@ -249,37 +249,37 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
 
 FROM php-zts-base
 
-COPY --from=PECL-BUILDER-AMQP /usr/lib/$PHP_PACKAGE_BASENAME/modules/amqp.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/amqp.so
-COPY --from=PECL-BUILDER-AMQP /etc/$PHP_PACKAGE_BASENAME/conf.d/40_amqp.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/40_amqp.ini
+COPY --from=pecl-builder-amqp /usr/lib/$PHP_PACKAGE_BASENAME/modules/amqp.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/amqp.so
+COPY --from=pecl-builder-amqp /etc/$PHP_PACKAGE_BASENAME/conf.d/40_amqp.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/40_amqp.ini
 RUN apk add --no-cache rabbitmq-c
 
-COPY --from=PECL-BUILDER-APCU /usr/lib/$PHP_PACKAGE_BASENAME/modules/apcu.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/apcu.so
-COPY --from=PECL-BUILDER-APCU /etc/$PHP_PACKAGE_BASENAME/conf.d/apcu.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/apcu.ini
+COPY --from=pecl-builder-apcu /usr/lib/$PHP_PACKAGE_BASENAME/modules/apcu.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/apcu.so
+COPY --from=pecl-builder-apcu /etc/$PHP_PACKAGE_BASENAME/conf.d/apcu.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/apcu.ini
 
-COPY --from=PECL-BUILDER-IGBINARY /usr/lib/$PHP_PACKAGE_BASENAME/modules/igbinary.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/igbinary.so
-COPY --from=PECL-BUILDER-IGBINARY /etc/$PHP_PACKAGE_BASENAME/conf.d/10_igbinary.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/10_igbinary.ini
+COPY --from=pecl-builder-igbinary /usr/lib/$PHP_PACKAGE_BASENAME/modules/igbinary.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/igbinary.so
+COPY --from=pecl-builder-igbinary /etc/$PHP_PACKAGE_BASENAME/conf.d/10_igbinary.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/10_igbinary.ini
 
-COPY --from=PECL-BUILDER-IMAGICK /usr/lib/$PHP_PACKAGE_BASENAME/modules/imagick.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/imagick.so
-COPY --from=PECL-BUILDER-IMAGICK /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini
+COPY --from=pecl-builder-imagick /usr/lib/$PHP_PACKAGE_BASENAME/modules/imagick.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/imagick.so
+COPY --from=pecl-builder-imagick /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini
 RUN apk add --no-cache imagemagick imagemagick-libs libgomp
 
-COPY --from=PECL-BUILDER-MSGPACK /usr/lib/$PHP_PACKAGE_BASENAME/modules/msgpack.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/msgpack.so
-COPY --from=PECL-BUILDER-MSGPACK /etc/$PHP_PACKAGE_BASENAME/conf.d/10_msgpack.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/10_msgpack.ini
+COPY --from=pecl-builder-msgpack /usr/lib/$PHP_PACKAGE_BASENAME/modules/msgpack.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/msgpack.so
+COPY --from=pecl-builder-msgpack /etc/$PHP_PACKAGE_BASENAME/conf.d/10_msgpack.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/10_msgpack.ini
 
-COPY --from=PECL-BUILDER-MEMCACHED /usr/lib/$PHP_PACKAGE_BASENAME/modules/memcached.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/memcached.so
-COPY --from=PECL-BUILDER-MEMCACHED /etc/$PHP_PACKAGE_BASENAME/conf.d/20_memcached.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/20_memcached.ini
+COPY --from=pecl-builder-memcached /usr/lib/$PHP_PACKAGE_BASENAME/modules/memcached.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/memcached.so
+COPY --from=pecl-builder-memcached /etc/$PHP_PACKAGE_BASENAME/conf.d/20_memcached.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/20_memcached.ini
 RUN apk add --no-cache libmemcached-libs libevent
 
-COPY --from=PECL-BUILDER-PROTOBUF /usr/lib/$PHP_PACKAGE_BASENAME/modules/protobuf.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/protobuf.so
-COPY --from=PECL-BUILDER-PROTOBUF /etc/$PHP_PACKAGE_BASENAME/conf.d/protobuf.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/protobuf.ini
+COPY --from=pecl-builder-protobuf /usr/lib/$PHP_PACKAGE_BASENAME/modules/protobuf.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/protobuf.so
+COPY --from=pecl-builder-protobuf /etc/$PHP_PACKAGE_BASENAME/conf.d/protobuf.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/protobuf.ini
 
 
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pgsql
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-phar
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-posix
 
-COPY --from=PECL-BUILDER-REDIS /usr/lib/$PHP_PACKAGE_BASENAME/modules/redis.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/redis.so
-COPY --from=PECL-BUILDER-REDIS /etc/$PHP_PACKAGE_BASENAME/conf.d/20_redis.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/20_redis.ini
+COPY --from=pecl-builder-redis /usr/lib/$PHP_PACKAGE_BASENAME/modules/redis.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/redis.so
+COPY --from=pecl-builder-redis /etc/$PHP_PACKAGE_BASENAME/conf.d/20_redis.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/20_redis.ini
 
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-simplexml
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-soap
@@ -287,8 +287,8 @@ RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-sockets
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-sodium
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-sqlite3
 
-COPY --from=PECL-BUILDER-XDEBUG /usr/lib/$PHP_PACKAGE_BASENAME/modules/xdebug.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/xdebug.so
-COPY --from=PECL-BUILDER-XDEBUG /etc/$PHP_PACKAGE_BASENAME/conf.d/50_xdebug.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/50_xdebug.ini
+COPY --from=pecl-builder-xdebug /usr/lib/$PHP_PACKAGE_BASENAME/modules/xdebug.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/xdebug.so
+COPY --from=pecl-builder-xdebug /etc/$PHP_PACKAGE_BASENAME/conf.d/50_xdebug.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/50_xdebug.ini
 
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-xml
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-xmlwriter
@@ -296,11 +296,11 @@ RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-xmlreader
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-xsl
 RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-zip
 
-COPY --from=PECL-BUILDER-GRPC /usr/lib/$PHP_PACKAGE_BASENAME/modules/grpc.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/grpc.so
-COPY --from=PECL-BUILDER-GRPC /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini
+COPY --from=pecl-builder-grpc /usr/lib/$PHP_PACKAGE_BASENAME/modules/grpc.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/grpc.so
+COPY --from=pecl-builder-grpc /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/grpc.ini
 
-COPY --from=PECL-BUILDER-PCOV /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so
-COPY --from=PECL-BUILDER-PCOV /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini
+COPY --from=pecl-builder-pcov /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so /usr/lib/$PHP_PACKAGE_BASENAME/modules/pcov.so
+COPY --from=pecl-builder-pcov /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini /etc/$PHP_PACKAGE_BASENAME/conf.d/pcov.ini
 
 # FIXME: we need this, since phpzts82 is not the _default_php in https://git.alpinelinux.org/aports/tree/community/php82/APKBUILD
 WORKDIR /usr/bin
