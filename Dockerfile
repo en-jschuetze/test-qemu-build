@@ -1,6 +1,8 @@
 FROM alpine:3.19.1 AS alpine-distro
 FROM alpine-distro AS php-zts-builder
 
+RUN apk upgrade -U # 2024/01/14 to fix CVEs
+
 RUN apk add --no-cache libc6-compat
 RUN apk add --no-cache alpine-sdk
 RUN apk add --no-cache git git-lfs bash vim vimdiff curl
