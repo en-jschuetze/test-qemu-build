@@ -57,7 +57,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
-          target: php-zts-builder
+          target: php-zts-base
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}-base
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}-base.tar
       - name: Load image
