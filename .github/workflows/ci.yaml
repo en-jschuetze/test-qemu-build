@@ -27,6 +27,13 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV    
       - name: Checkout
         uses: actions/checkout@v4
+      -   name: Lint Dockerfile
+          uses: hadolint/hadolint-action@v3.0.0
+          with:
+            dockerfile: "Dockerfile"
+            format: "tty"
+            no-color: "true"
+            output-file: "/dev/stdout"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
