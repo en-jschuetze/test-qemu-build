@@ -57,7 +57,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
-          target: PHPZTSBUILDER
+          target: php-zts-builder
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}-base
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}-base.tar
       - name: Load image
@@ -82,17 +82,17 @@ jobs:
           - linux/amd64
           - linux/arm64
         module:
-          - PECL-BUILDER-AMQP
-          - PECL-BUILDER-APCU
-          - PECL-BUILDER-IGBINARY
-          - PECL-BUILDER-IMAGICK
-          - PECL-BUILDER-MSGPACK
-          - PECL-BUILDER-MEMCACHED
-          - PECL-BUILDER-PROTOBUF
-          - PECL-BUILDER-REDIS
-          - PECL-BUILDER-XDEBUG
-          - PECL-BUILDER-GRPC
-          - PECL-BUILDER-PCOV
+          - pecl-builder-amqp
+          - pecl-builder-apcu
+          - pecl-builder-igbinary
+          - pecl-builder-imagick
+          - pecl-builder-msgpack
+          - pecl-builder-memcached
+          - pecl-builder-protobuf
+          - pecl-builder-redis
+          - pecl-builder-xdebug
+          - pecl-builder-grpc
+          - pecl-builder-pcov
     steps:
       -
         name: Prepare
@@ -182,17 +182,17 @@ jobs:
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
           cache-from: |
             type=gha,scope=${{ env.PLATFORM_PAIR }}-base
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-AMQP
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-APCU
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-IGBINARY
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-IMAGICK
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-MSGPACK
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-MEMCACHED
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-PROTOBUF
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-REDIS
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-XDEBUG
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-GRPC
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-PECL-BUILDER-PCOV
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-AMQP
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-APCU
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-IGBINARY
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-IMAGICK
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-MSGPACK
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-MEMCACHED
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-PROTOBUF
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-REDIS
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-XDEBUG
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-GRPC
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-PCOV
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
