@@ -172,17 +172,17 @@ jobs:
           tags: temporary-build-image-${{ env.PLATFORM_PAIR }}
           cache-from: |
             type=gha,scope=${{ env.PLATFORM_PAIR }}-base
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-AMQP
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-APCU
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-IGBINARY
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-IMAGICK
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-MSGPACK
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-MEMCACHED
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-PROTOBUF
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-REDIS
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-XDEBUG
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-GRPC
-            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-PCOV
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-amqp
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-apcu
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-igbinary
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-imagick
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-msgpack
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-memcached
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-protobuf
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-redis
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-xdebug
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-grpc
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-pcov
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
