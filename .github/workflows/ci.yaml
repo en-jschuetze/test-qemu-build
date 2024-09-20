@@ -9,6 +9,7 @@ env:
   GITHUB_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   RELEASE_REF_FILTER: 'refs/heads/release/'
+  EXCLUDED_PLATFORM: "linux/arm64"
 
 jobs:
   lint:
@@ -35,6 +36,8 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        exclude:
+          - platform: ${{ env.EXCLUDED_PLATFORM }}
     steps:
       -
         name: Prepare
@@ -77,6 +80,8 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        exclude:
+          - platform: ${{ env.EXCLUDED_PLATFORM }}
         module:
           - pecl-builder-amqp
           - pecl-builder-apcu
@@ -132,6 +137,8 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        exclude:
+          - platform: ${{ env.EXCLUDED_PLATFORM }}
     steps:
       -
         name: Prepare
@@ -199,6 +206,8 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        exclude:
+          - platform: ${{ env.EXCLUDED_PLATFORM }}
     steps:
       -
         name: Prepare
@@ -244,11 +253,13 @@ jobs:
             name: linux-amd64.tar
             path: /tmp
         - name: Download arm64 artifact
+          if: env.EXCLUDED_PLATFORM != 'linux/arm64'
           uses: actions/download-artifact@v4
           with:
             name: linux-arm64.tar
             path: /tmp
         - name: Load arm64 image
+          if: env.EXCLUDED_PLATFORM != 'linux/arm64'
           run: |
             docker load --input /tmp/linux-arm64.tar
             docker image ls -a          
@@ -260,6 +271,7 @@ jobs:
           run: |
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
         - name: Test arm64
+          if: env.EXCLUDED_PLATFORM != 'linux/arm64'
           run: |
             docker run --platform linux/arm64 --rm temporary-build-image-linux-arm64 sh -c 'uname -a && php -v'
         - name: "PHP_VERSION Env"
@@ -278,12 +290,19 @@ jobs:
             tags: |
                type=raw,value=${{ env.PHP_VERSION }}
             images: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+        - name: Set platforms
+          id: set-platforms
+          run: |
+            if [ "${{ env.EXCLUDED_PLATFORM }}" = "linux/arm64" ]; then
+              echo "PLATFORMS=linux/amd64" >> $GITHUB_ENV
+            else
+              echo "PLATFORMS=linux/amd64,linux/arm64" >> $GITHUB_ENV
         - if: contains(matrix.suffix, 'unsuffixed')
           name: Build and push Docker image
           uses: docker/build-push-action@v5.3.0
           with:
             context: .
-            platforms: linux/amd64,linux/arm64
+            platforms: ${{ env.PLATFORMS }}
             provenance: false
             cache-from: |
               type=gha,scope=unsuffixed
@@ -312,7 +331,7 @@ jobs:
           with:
             context: .
             file: Dockerfile-${{ matrix.suffix }}
-            platforms: linux/amd64,linux/arm64
+            platforms: ${{ env.PLATFORMS }}
             provenance: false
             cache-from: |
               type=gha,scope=unsuffixed
