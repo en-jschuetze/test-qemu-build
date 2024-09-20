@@ -188,14 +188,20 @@ RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automa
 
 FROM php-zts-base AS PECL-BUILDER-IMAGICK
 
-# FIXME: # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-imagick
+# FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-imagick
 RUN apk add --no-cache binutils build-base openssl-dev autoconf pcre2-dev automake libtool linux-headers imagemagick imagemagick-dev imagemagick-libs ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
-    && MAKEFLAGS="-j $(nproc)" peclzts83 install imagick \
+    && wget --quiet --no-verbose https://github.com/Imagick/imagick/archive/7088edc353f53c4bc644573a79cdcd67a726ae16.tar.gz -O /tmp/imagick.tar.gz \
+    && tar --strip-components=1 -xf /tmp/imagick.tar.gz \
+    && phpize83 \
+    && ./configure \
+    && MAKEFLAGS="-j $(nproc)" make \
+    && MAKEFLAGS="-j $(nproc)" make install \
     && strip --strip-all /usr/lib/$PHP_PACKAGE_BASENAME/modules/imagick.so \
-    && echo "extension=imagick" > /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini \
+    && echo "extension=imagick.so" > /etc/$PHP_PACKAGE_BASENAME/conf.d/00_imagick.ini \
+    && rm -rf /tmp/imagick.tar.gz \
     && apk del --no-network .build-deps \
     && apk add --no-cache imagemagick imagemagick-libs libgomp
-
+    
 FROM php-zts-base AS PECL-BUILDER-MSGPACK
 
 # FIXME: RUN apk add --no-cache ${PHP_PACKAGE_BASENAME}-pecl-msgpack
