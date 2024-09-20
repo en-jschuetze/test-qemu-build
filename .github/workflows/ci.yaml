@@ -6,13 +6,29 @@ on:
       - "zts"
 
 env:
-  REGISTRY: ghcr.io
+  GITHUB_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PHP_VERSION: 8.2.16-zts
+  RELEASE_REF_FILTER: 'refs/heads/release/'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.0.0
+        with:
+          dockerfile: "Dockerfile"
+          format: "tty"
+          no-color: "true"
+          output-file: "/dev/stdout"
   build-base:
     runs-on: ubuntu-latest
+    needs:
+      - lint
     strategy:
       fail-fast: false
       matrix:
@@ -27,30 +43,10 @@ jobs:
           echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV    
       - name: Checkout
         uses: actions/checkout@v4
-      -   name: Lint Dockerfile
-          uses: hadolint/hadolint-action@v3.0.0
-          with:
-            dockerfile: "Dockerfile"
-            format: "tty"
-            no-color: "true"
-            output-file: "/dev/stdout"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - if: contains(github.ref, 'refs/heads/release/')
-        name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - if: contains(github.ref, 'refs/heads/release/')
-        name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -105,19 +101,6 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - if: contains(github.ref, 'refs/heads/release/')
-        name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - if: contains(github.ref, 'refs/heads/release/')
-        name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -161,17 +144,17 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - if: contains(github.ref, 'refs/heads/release/')
+      - if: contains(github.ref, env.RELEASE_REF_FILTER)
         name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - if: contains(github.ref, 'refs/heads/release/')
+      - if: contains(github.ref, env.RELEASE_REF_FILTER)
         name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.GITHUB_REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
@@ -239,6 +222,15 @@ jobs:
   use:
       runs-on: ubuntu-latest
       needs: build-all
+      strategy:
+        fail-fast: false
+        matrix:
+          suffix:
+            - unsuffixed
+            - fpm
+            - apache2
+            - unit
+            - frankenphp
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -256,30 +248,39 @@ jobs:
           with:
             name: linux-arm64.tar
             path: /tmp
-        - name: Load image
+        - name: Load arm64 image
           run: |
             docker load --input /tmp/linux-arm64.tar
+            docker image ls -a          
+        - name: Load amd64 image
+          run: |
             docker load --input /tmp/linux-amd64.tar
             docker image ls -a          
-        - name: Test am64
+        - name: Test amd64
           run: |
             docker run --platform linux/amd64 --rm temporary-build-image-linux-amd64 sh -c 'uname -a && php -v'
-        - name: Log into registry ${{ env.REGISTRY }}
+        - name: Test arm64
+          run: |
+            docker run --platform linux/arm64 --rm temporary-build-image-linux-arm64 sh -c 'uname -a && php -v'
+        - name: "PHP_VERSION Env"
+          run: echo "PHP_VERSION=`docker run --pull=never --rm -t temporary-build-image-linux-amd64 php --version | head -n 1 | cut -f 2 -d ' '``docker run --pull=never --rm -t temporary-build-image-linux-amd64 php --version | grep 'ZTS' >/dev/null && echo '-zts' || echo ''`" >> $GITHUB_ENV
+        - name: Log into registry ${{ env.GITHUB_REGISTRY }}
           if: github.event_name != 'pull_request'
           uses: docker/login-action@v3.0.0
           with:
-            registry: ${{ env.REGISTRY }}
+            registry: ${{ env.GITHUB_REGISTRY }}
             username: ${{ github.actor }}
             password: ${{ secrets.GITHUB_TOKEN }}
-        - name: Extract Docker metadata
-          id: meta
+        - name: Extract Dockerfile metadata
+          id: metaUnsuffixed
           uses: docker/metadata-action@v5.5.1
           with:
             tags: |
                type=raw,value=${{ env.PHP_VERSION }}
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Docker image
-          uses: docker/build-push-action@v5.1.0
+            images: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+        - if: contains(matrix.suffix, 'unsuffixed')
+          name: Build and push Docker image
+          uses: docker/build-push-action@v5.3.0
           with:
             context: .
             platforms: linux/amd64,linux/arm64
@@ -290,110 +291,34 @@ jobs:
               type=gha,scope=linux-arm64          
             cache-to: type=gha,mode=max,scope=unsuffixed
             push: ${{ github.event_name != 'pull_request' }}
+            tags: ${{ steps.metaUnsuffixed.outputs.tags }}
+            labels: ${{ steps.metaUnsuffixed.outputs.labels }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Create Dockerfile-${{ matrix.suffix }}
+          run: |
+            cp Dockerfile Dockerfile-${{ matrix.suffix }}
+            cat files/${{ matrix.suffix }}/${{ matrix.suffix }}.Dockerfile.snippet.txt >> Dockerfile-${{ matrix.suffix }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Extract Dockerfile-${{ matrix.suffix }} metadata
+          id: meta
+          uses: docker/metadata-action@v5.5.1
+          with:
+            tags: |
+               type=raw,value=${{ env.PHP_VERSION }}-${{ matrix.suffix }}
+            images: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+        - if: ${{ !contains(matrix.suffix, 'unsuffixed') }}
+          name: Build and push Dockerfile-${{ matrix.suffix }}
+          uses: docker/build-push-action@v5.3.0
+          with:
+            context: .
+            file: Dockerfile-${{ matrix.suffix }}
+            platforms: linux/amd64,linux/arm64
+            provenance: false
+            cache-from: |
+              type=gha,scope=unsuffixed
+              type=gha,scope=linux-amd64
+              type=gha,scope=linux-arm64
+            cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
+            push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.meta.outputs.tags }}
             labels: ${{ steps.meta.outputs.labels }}
-            
-        - name: Create Dockerfile-unit
-          run: |
-            cp Dockerfile Dockerfile-unit
-            cat files/unit/unit.Dockerfile.snippet.txt >> Dockerfile-unit
-        - name: Extract Dockerfile-unit metadata
-          id: metaUnit
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-unit
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-unit
-          uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-            file: Dockerfile-unit
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=unit
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaUnit.outputs.tags }}
-            labels: ${{ steps.metaUnit.outputs.labels }}
-        - name: Create Dockerfile-fpm
-          run: |
-            cp Dockerfile Dockerfile-fpm
-            cat files/fpm/fpm.Dockerfile.snippet.txt >> Dockerfile-fpm
-        - name: Extract Dockerfile-fpm metadata
-          id: metaFpm
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-fpm
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-fpm
-          uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-            file: Dockerfile-fpm
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=fpm
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaFpm.outputs.tags }}
-            labels: ${{ steps.metaFpm.outputs.labels }}
-        - name: Create Dockerfile-apache2
-          run: |
-            cp Dockerfile Dockerfile-apache2
-            cat files/apache2/apache2.Dockerfile.snippet.txt >> Dockerfile-apache2
-        - name: Extract Dockerfile-apache2 metadata
-          id: metaApache2
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-apache2
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-apache2
-          uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-            file: Dockerfile-apache2
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=apache2
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaApache2.outputs.tags }}
-            labels: ${{ steps.metaApache2.outputs.labels }}
-        - name: Create Dockerfile-frankenphp
-          run: |
-            cp Dockerfile Dockerfile-frankenphp
-            cat files/frankenphp/frankenphp.Dockerfile.snippet.txt >> Dockerfile-frankenphp
-        - name: Extract Dockerfile-frankenphp metadata
-          id: metaFrankenphp
-          uses: docker/metadata-action@v5.5.1
-          with:
-            tags: |
-               type=raw,value=${{ env.PHP_VERSION }}-frankenphp
-            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        - name: Build and push Dockerfile-frankenphp
-          uses: docker/build-push-action@v5.1.0
-          with:
-            context: .
-            file: Dockerfile-frankenphp
-            platforms: linux/amd64,linux/arm64
-            provenance: false
-            cache-from: |
-              type=gha,scope=unsuffixed
-              type=gha,scope=linux-amd64
-              type=gha,scope=linux-arm64
-            cache-to: type=gha,mode=max,scope=frankenphp
-            push: ${{ github.event_name != 'pull_request' }}
-            tags: ${{ steps.metaFrankenphp.outputs.tags }}
-            labels: ${{ steps.metaFrankenphp.outputs.labels }}
