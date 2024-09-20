@@ -38,6 +38,7 @@ RUN sed -i -e 's/\$pkgname-fpm-version-suffix.patch/php83-fpm-version-suffix.pat
 # hadolint ignore=SC2016
 RUN sed -i -e 's/php\$_suffix-module.conf/php83-module.conf/' APKBUILD
 RUN sed -i -e 's/--host/--enable-zts --enable-zend-max-execution-timers --enable-zend-timer --disable-zend-signals --host/' APKBUILD
+RUN sed -i -e 's/_default_php="yes"/_default_php="no"/g' APKBUILD
 RUN echo "" >> disabled-tests.list
 RUN echo "ext/posix/tests/bug75696.phpt" >> disabled-tests.list
 RUN echo "ext/posix/tests/posix_getgrgid.phpt" >> disabled-tests.list
