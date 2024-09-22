@@ -282,7 +282,7 @@ FROM php-zts-base AS FRANKENPHPBUILDER
 
 # install caddy with frankenphp
 # hadolint ignore=SC2016,SC2086,DL3003
-RUN apk add --no-cache go~=1.21 --virtual .go-build-deps \
+RUN apk add --no-cache go~=1.22 --virtual .go-build-deps \
     && apk add --no-cache libxml2-dev sqlite-dev brotli-dev build-base openssl-dev ${PHP_PACKAGE_BASENAME}-dev~=${PHP_VERSION} --virtual .build-deps \
     && cd /opt \
     && git clone https://github.com/dunglas/frankenphp.git --recursive  --branch v1.2.5 --single-branch \
