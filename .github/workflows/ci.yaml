@@ -299,6 +299,7 @@ jobs:
               echo "PLATFORMS=linux/amd64" >> $GITHUB_ENV
             else
               echo "PLATFORMS=linux/amd64,linux/arm64" >> $GITHUB_ENV
+            fi
         - if: contains(matrix.suffix, 'unsuffixed')
           name: Build and push Docker image
           uses: docker/build-push-action@v5.3.0
