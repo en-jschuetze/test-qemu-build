@@ -94,6 +94,7 @@ jobs:
           - pecl-builder-xdebug
           - pecl-builder-grpc
           - pecl-builder-pcov
+          - FRANKENPHPBUILDER
     steps:
       -
         name: Prepare
@@ -183,6 +184,7 @@ jobs:
             type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-xdebug
             type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-grpc
             type=gha,scope=${{ env.PLATFORM_PAIR }}-pecl-builder-pcov
+            type=gha,scope=${{ env.PLATFORM_PAIR }}-FRANKENPHPBUILDER
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
           outputs: type=docker,dest=/tmp/${{ env.PLATFORM_PAIR }}.tar
       - name: Load image
