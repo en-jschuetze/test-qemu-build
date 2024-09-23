@@ -9,7 +9,13 @@ env:
   GITHUB_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   RELEASE_REF_FILTER: 'refs/heads/release/'
-  EXCLUDED_PLATFORM: "linux/arm64"
+  EXCLUDED_PLATFORM: "none" # change to linux/arm64
+  # and thos blocks from:
+  #   exclude:
+  #   - platform: none
+  # to:
+  #   exclude:
+  #   - platform: linux/arm64
 
 jobs:
   lint:
@@ -37,7 +43,7 @@ jobs:
           - linux/amd64
           - linux/arm64
         exclude:
-          - platform: linux/arm64
+          - platform: none
     steps:
       -
         name: Prepare
@@ -81,7 +87,7 @@ jobs:
           - linux/amd64
           - linux/arm64
         exclude:
-          - platform: linux/arm64
+          - platform: none
         module:
           - pecl-builder-amqp
           - pecl-builder-apcu
@@ -139,7 +145,7 @@ jobs:
           - linux/amd64
           - linux/arm64
         exclude:
-          - platform: linux/arm64
+          - platform: none
     steps:
       -
         name: Prepare
@@ -209,7 +215,7 @@ jobs:
           - linux/amd64
           - linux/arm64
         exclude:
-          - platform: linux/arm64
+          - platform: none
     steps:
       -
         name: Prepare
