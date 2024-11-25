@@ -39,6 +39,7 @@ RUN sed -i -e 's/\$pkgname-fpm-version-suffix.patch/php84-fpm-version-suffix.pat
 RUN sed -i -e 's/php\$_suffix-module.conf/php84-module.conf/' APKBUILD
 RUN sed -i -e 's/--host/--enable-zts --enable-zend-max-execution-timers --enable-zend-timer --disable-zend-signals --host/' APKBUILD
 RUN sed -i -e 's/_default_php="yes"/_default_php="no"/g' APKBUILD
+RUN sed -i -e 's/--with-openssl-argon2//g' APKBUILD
 RUN echo "" >> disabled-tests.list
 RUN echo "ext/posix/tests/bug75696.phpt" >> disabled-tests.list
 RUN echo "ext/posix/tests/posix_getgrgid.phpt" >> disabled-tests.list
